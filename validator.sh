@@ -7,49 +7,41 @@ set -euo pipefail
 # '-u' option treats unset variables and parameters as an error.
 # '-o pipefail' option sets the exit code of a pipeline to that of the rightmost command to exit with a non-zero status.
 
+#créé une variable avec le numéro du processus actuel
 IMG=$(echo img$$)
-# Creating a unique image name using the process ID of the current shell.
 
+#créé une image depuis le dossier src, l'image est affublée du tag généré sur la ligne juste au-dessus.
 docker image build --tag $IMG ./src --load
-# Building a Docker image from the Dockerfile located in the ./src directory.
-# The built image is tagged with the unique name generated above.
-# The '--load' option ensures the built image is loaded into the Docker daemon.
 
+# créé un container temporaire avec le --rm qui supprimera le container après son execution.
+# le container est créé avec l'image créé plus haut. 
+# whoami (qui affiche le nom d'utilisateur) sera stocké dans la variable USR.
 USR=$(docker container run --rm --entrypoint=whoami $IMG )
-# Running a Docker container from the image built above.
-# The container is removed after its execution (--rm option).
-# The entrypoint of the container is overridden to execute the 'whoami' command.
-# The output of 'whoami' (which is the username) is stored in the USR variable.
 
+
+# vérifie que le user dans le container est bien le root et si non affiche le message "User cannot be root!".
 if [[ $USR == "root" ]]; then
 echo "User cannot be root!"
 fi
-# Checking if the user inside the container is root.
-# If it is, an error message is printed.
 
+# créé un container temporaire avec le --rm qui supprimera le container après son execution (encore).
+# le container utilise la même image qu'avant.
+# ce qui resulte de cette commande est ensuite renvoyé vers /dev/null pour la suppression.
 docker container run --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
-# Running a Docker container in detached mode from the image built above.
-# The container is removed after its execution (--rm option).
-# A temporary filesystem is mounted at /tmp inside the container (--tmpfs option).
-# The filesystem of the container is mounted as read-only (--read-only option).
-# The output of this command is redirected to /dev/null to suppress it.
 
+# id du dernier container
 ID=$(docker container ls -laq)
-# Getting the ID of the last created container.
 
+# docker container inspect permet de récupérer le statu de la machine et sera ainsi stocké dans la variable RUNNIG
 RUNNING=$(docker container inspect -f '{{.State.Status}}' $ID)
-# Checking the status of the container with the ID obtained above.
-# The status is extracted from the output of 'docker container inspect' command using a format string.
 
+# si le container est en mode running le shell le killera puis le redirigera dans /dev/null comme précédemment fait pour la suppression.
+# sinon le shell affiche le message "Container cannot run in read-only mode!".
 if [[ $RUNNING == "running" ]]; then
     docker kill $ID > /dev/null
 else
 echo "Container cannot run in read-only mode!"
 fi
-# Checking if the container is running.
-# If it is, the container is killed.
-# If it's not, an error message is printed.
 
+# suppression de l'image créé précédemment.
 docker rmi $IMG > /dev/null
-# Removing the Docker image built above.
-# The output of this command is redirected to /dev/null to suppress it.
