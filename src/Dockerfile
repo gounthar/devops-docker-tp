@@ -44,7 +44,3 @@ ENTRYPOINT ["/bin/start.sh"]
 
 # Définir "nc -l 4323" comme commande par défaut de l'image
 CMD ["nc", "-l", "4323"]
-
-
-# Définir "nc -l 4323" comme commande par défaut de l'image
-CMD ["nc", "-l", "4323"]
