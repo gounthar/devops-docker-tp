@@ -7,21 +7,23 @@ set -eux
 # 'u' option treats unset variables and parameters as an error.
 # 'x' option prints each command that gets executed to the terminal, useful for debugging.
 
-touch /home/www/started.time
-# This command creates a file named 'started.time' in the '/home/www' directory.
-# If the file already exists, the command does not change the file but updates its access and modification timestamps.
+TMP_DIR="/tmp/appTP"
+mkdir -p "$TMP_DIR"
+# create a variable for the directory to create it and stock it for the next part.
+
+TIMESTAMP_FILE="$TMP_DIR/started.time"
+# create another variable to add the file name.
+
+touch "$TIMESTAMP_FILE"
+# Create the timestamp file.
 
 if [ $? -ne 0 ]; then
-    exit
+    exit 1
 fi
-# This conditional statement checks the exit status of the last command (touch command in this case).
-# If the exit status is not zero, which indicates an error, the script will exit immediately.
 
-date > /home/www/started.time
-# This command writes the current date and time to the 'started.time' file.
-# The '>' operator is used to redirect the output of the 'date' command to the file.
+date > "$TIMESTAMP_FILE"
+# Write the current date and time to the timestamp file.
 
 exec "$@"
-# This command replaces the current shell process with the command given as argument.
-# It's used to pass control from the script to another program or command.
+# Pass control to another command or process.
 # The "$@" is a special variable that holds all the arguments passed to the script.
