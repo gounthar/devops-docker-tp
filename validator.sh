@@ -15,6 +15,11 @@ docker image build --tag $IMG ./src --load
 # The built image is tagged with the unique name generated above.
 # The '--load' option ensures the built image is loaded into the Docker daemon.
 
+
+# Commentaire : On récupère l'information du USER lors du run du container 
+# PS : grace au --rm le container s'éteint et se supprime direcetment a la fin de la commande 
+# Et ensuite grâce a cette info on va vérifier que l'utilisateur n'est pas root
+
 USR=$(docker container run --rm --entrypoint=whoami $IMG )
 # Running a Docker container from the image built above.
 # The container is removed after its execution (--rm option).
@@ -27,6 +32,9 @@ fi
 # Checking if the user inside the container is root.
 # If it is, an error message is printed.
 
+
+# Commentaire : On lance le container cette fois-ci et on instancie le dossier /tmp qu'on utilise afin d'y mettre notre ficher started.time
+
 docker container run --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
 # Running a Docker container in detached mode from the image built above.
 # The container is removed after its execution (--rm option).
@@ -36,6 +44,10 @@ docker container run --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
 
 ID=$(docker container ls -laq)
 # Getting the ID of the last created container.
+
+
+# Commentaire : Cette partie sert à la vérification que le container n'est pas éxécuté en read-only mode, 
+# pour ça elle va se baser sur le status du container, si il n'est en 'running' alors l'erreur s'affichera
 
 RUNNING=$(docker container inspect -f '{{.State.Status}}' $ID)
 # Checking the status of the container with the ID obtained above.
@@ -49,6 +61,9 @@ fi
 # Checking if the container is running.
 # If it is, the container is killed.
 # If it's not, an error message is printed.
+
+
+# Commentaire : La comande rm permet de supprimer une image, ici c'est celle que nous avons créer 
 
 docker rmi $IMG > /dev/null
 # Removing the Docker image built above.
