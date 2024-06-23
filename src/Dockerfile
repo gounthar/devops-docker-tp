@@ -3,16 +3,18 @@
 # Use the donch/net-tools image as the base image.
 # This image likely contains network utilities like netstat, ifconfig, etc.
 FROM donch/net-tools
-
+RUN adduser -h /home/www -D www
+WORKDIR /home/www
 # Copy the start.sh script from the local file system into the /bin directory of the image.
 # This script will be run when a container is started from this image.
 COPY start.sh /bin/start.sh
+run chmod +x /bin/start.sh
 
 # Expose port 4321 in the container.
 # This makes the port accessible to processes outside of the container.
-EXPOSE 4321
+EXPOSE 4323
 
-USER root
+USER www
 
 # Set /bin/start.sh as the entrypoint of the image.
 # The entrypoint is the command that is run when a container is started from this image.
