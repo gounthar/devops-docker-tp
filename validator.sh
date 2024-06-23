@@ -1,7 +1,6 @@
 #!/bin/bash
 # This is a bash script for validating Docker images and containers.
-
-set -euo pipefail
+set -eu
 # The 'set' command is used to change the values of shell options and set the positional parameters.
 # '-e' option will cause the shell to exit if any invoked command fails.
 # '-u' option treats unset variables and parameters as an error.
