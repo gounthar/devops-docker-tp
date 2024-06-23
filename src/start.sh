@@ -1,15 +1,27 @@
 #!/bin/sh
-# This script is used to perform actions at container startup.
+# This script is used to create a timestamp file and write the current date and time into it.
 
 set -eu
-# Set shell options for better error handling and debugging.
-# 'e' - Exit the script if any command returns a non-zero exit status.
-# 'u' - Treat unset variables as errors.
+# Setting shell options for better error handling.
+# 'e' option will cause the shell to exit if any invoked command fails.
+# 'u' option treats unset variables and parameters as an error.
 
-# You can add other necessary actions or commands for startup here.
-# For example, running database migrations, initializing settings, etc.
+# Création d'un fichier started.time en tant que fichier temporaire pour qu'il soit accessible par validator.sh 
+touch /tmp/started.time
+# This command creates a file named 'started.time' in the 'tmp/ directory.
+# If the file already exists, the command updates its access and modification timestamps.
 
+if [ $? -ne 0 ]; then
+    exit
+fi
+# This conditional statement checks the exit status of the previous command.
+# If the exit status is not zero, which indicates an error, the script exits immediately.
+
+# Write the current date and time to the 'started.time' file.
+date > /tmp/started.time
+# The '>' operator redirects the output of the 'date' command to the 'started.time' file.
+
+# Replace the current shell process with the command passed as arguments.
 exec "$@"
-# Replace the current shell process with the command specified as arguments.
-# This is used to pass control from the script to another program or command.
+# This command passes control from the script to another program or command.
 # "$@" holds all the arguments passed to the script.
