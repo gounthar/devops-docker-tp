@@ -18,7 +18,7 @@ RUN mkdir -p /tmp/dossierTP && chown theUser:myNewGroup /tmp/dossierTP
 # This makes the port accessible to processes outside of the container.
 EXPOSE 4321
 
-# Définir l'utilisateur par défaut
+# Définir l'utilisateur par défaut (pas de root, on utilise celui qu'on a créé)
 USER theUser
 
 # Set /bin/start.sh as the entrypoint of the image.
