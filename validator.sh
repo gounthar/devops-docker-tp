@@ -2,54 +2,45 @@
 # This is a bash script for validating Docker images and containers.
 
 set -euo pipefail
-# The 'set' command is used to change the values of shell options and set the positional parameters.
-# '-e' option will cause the shell to exit if any invoked command fails.
-# '-u' option treats unset variables and parameters as an error.
-# '-o pipefail' option sets the exit code of a pipeline to that of the rightmost command to exit with a non-zero status.
+#Cette commande permet de configurer le shell pour quitter le shell en cas d'érreur dans le prompt, traite les variables inconnu ou indéfini comme des erreurs et le dernier trait assure que le pipeline échoue si il y a une erreur. 
 
 IMG=$(echo img$$)
-# Creating a unique image name using the process ID of the current shell.
+
+#Cette commande créer une image docker qui utilise le même ID du shell actuel
 
 docker image build --tag $IMG ./src # --load
-# Building a Docker image from the Dockerfile located in the ./src directory.
-# The built image is tagged with the unique name generated above.
-# The '--load' option ensures the built image is loaded into the Docker daemon only if you use docker buildx.
+
+#Cette commande créer une image docker a partir du fichier source Dockerfile, le fichier iso a un nom unique générer auparavant, et l'option finale --load assure que l'image qui viens d'être créer dans le Docker daemon si on utilise le docker buildx.
 
 USR=$(docker container run --rm --entrypoint=whoami $IMG )
-# Running a Docker container from the image built above.
-# The container is removed after its execution (--rm option).
-# The entrypoint of the container is overridden to execute the 'whoami' command.
-# The output of 'whoami' (which is the username) is stored in the USR variable.
+#Cette commande éxécute un container docker à partir de l'image créer auparavant, il éxécute whoami et stock la sortie de la commande dans une variable USR.
 
 if [[ $USR == "root" ]]; then
 echo "User cannot be root!"
 fi
-# Checking if the user inside the container is root.
-# If it is, an error message is printed.
+
+#Vérifie si l'utilisateur se trouvant dans le container est root, si c'est le cas il affiche "User cannot be root !"
 
 docker container run --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
-# Running a Docker container in detached mode from the image built above.
-# The container is removed after its execution (--rm option).
-# A temporary filesystem is mounted at /tmp inside the container (--tmpfs option).
-# The filesystem of the container is mounted as read-only (--read-only option).
-# The output of this command is redirected to /dev/null to suppress it.
+
+#Execute le container Docker en mode détaché (--detach), le container est supprimé avec l'éxécution (--rm), un nouveau système de fichier temporaire est monter dans le /tmp avec l'option (--tmpfs), le nouveau système de fichier est monté en lecture seule (--read-only) et la sortie de la commande est redirigé dans le /dev/null pour la supprimé
 
 ID=$(docker container ls -laq)
-# Getting the ID of the last created container.
+
+#Récupère l'ID du dernier container créer
 
 RUNNING=$(docker container inspect -f '{{.State.Status}}' $ID)
-# Checking the status of the container with the ID obtained above.
-# The status is extracted from the output of 'docker container inspect' command using a format string.
+
+#Vérifie le statut du container idéntifié par le dernier ID obtenu et extrait le statut de la sortie de la commande en utilisant une chaine de format
 
 if [[ $RUNNING == "running" ]]; then
     docker kill $ID > /dev/null
 else
 echo "Container cannot run in read-only mode!"
 fi
-# Checking if the container is running.
-# If it is, the container is killed.
-# If it's not, an error message is printed.
+
+#Vérifier si le container est en cours d'éxécution, s'il il est déjà en cours d'éxéciton, il arrête le container sinon un message d'érreur s'affiche
 
 docker rmi $IMG > /dev/null
-# Removing the Docker image built above.
-# The output of this command is redirected to /dev/null to suppress it.
+
+#Supprime l'image docker construite avant et redirige la sortie de la commande vers /dev/null afin de la supprimé
