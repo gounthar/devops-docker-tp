@@ -16,6 +16,7 @@ COPY start.sh /bin/start.sh
 EXPOSE 4321
 
 USER utilscript
+# Utilise le nouvel utilisateur
 
 # Set /bin/start.sh as the entrypoint of the image.
 # The entrypoint is the command that is run when a container is started from this image.
