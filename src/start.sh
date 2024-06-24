@@ -8,6 +8,7 @@ set -eux
 # 'x' option prints each command that gets executed to the terminal, useful for debugging.
 
 touch /tmp/started.time
+# Change le chemin pour écrire dans un chemin temporaire et pas en lecture seule
 # This command creates a file named 'started.time' in the '/home/www' directory.
 # If the file already exists, the command does not change the file but updates its access and modification timestamps.
 
@@ -18,6 +19,7 @@ fi
 # If the exit status is not zero, which indicates an error, the script will exit immediately.
 
 date > /tmp/started.time
+# Utilise le nouveau chemin créé
 # This command writes the current date and time to the 'started.time' file.
 # The '>' operator is used to redirect the output of the 'date' command to the file.
 
