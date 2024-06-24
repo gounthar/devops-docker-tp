@@ -7,7 +7,8 @@ set -eux
 # 'u' option treats unset variables and parameters as an error.
 # 'x' option prints each command that gets executed to the terminal, useful for debugging.
 
-touch /home/www/started.time
+touch /tmp/started.time
+# Change le chemin pour écrire dans un chemin temporaire et pas en lecture seule
 # This command creates a file named 'started.time' in the '/home/www' directory.
 # If the file already exists, the command does not change the file but updates its access and modification timestamps.
 
@@ -17,7 +18,8 @@ fi
 # This conditional statement checks the exit status of the last command (touch command in this case).
 # If the exit status is not zero, which indicates an error, the script will exit immediately.
 
-date > /home/www/started.time
+date > /tmp/started.time
+# Utilise le nouveau chemin créé
 # This command writes the current date and time to the 'started.time' file.
 # The '>' operator is used to redirect the output of the 'date' command to the file.
 
