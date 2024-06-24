@@ -42,7 +42,5 @@ fi
 #Vérifier si le container est en cours d'éxécution, s'il il est déjà en cours d'éxéciton, il arrête le container sinon un message d'érreur s'affiche
 
 docker rmi $IMG > /dev/null
-# Removing the Docker image built above.
-# The output of this command is redirected to /dev/null to suppress it.
 
 #Supprime l'image docker construite avant et redirige la sortie de la commande vers /dev/null afin de la supprimé
