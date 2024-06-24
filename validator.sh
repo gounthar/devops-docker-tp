@@ -7,49 +7,73 @@ set -euo pipefail
 # '-u' option treats unset variables and parameters as an error.
 # '-o pipefail' option sets the exit code of a pipeline to that of the rightmost command to exit with a non-zero status.
 
+
+#----------------------------
+# CRÉATION DE L'IMAGE
+#----------------------------
+
+# Crée un numéro unique à partir du processus en train de tourner
 IMG=$(echo img$$)
-# Creating a unique image name using the process ID of the current shell.
 
-docker image build --tag $IMG ./src # --load
-# Building a Docker image from the Dockerfile located in the ./src directory.
-# The built image is tagged with the unique name generated above.
-# The '--load' option ensures the built image is loaded into the Docker daemon only if you use docker buildx.
+# Crée une image docker à partir du dockerfile src, puis associe à celle-ci le numéro généré au-dessus
+docker image build --tag $IMG ./src --load
 
+
+#----------------------------
+# CRÉATION DU CONTAINER
+#----------------------------
+
+# Créé un container depuis l'image docker générée,
 USR=$(docker container run --rm --entrypoint=whoami $IMG )
-# Running a Docker container from the image built above.
-# The container is removed after its execution (--rm option).
-# The entrypoint of the container is overridden to execute the 'whoami' command.
-# The output of 'whoami' (which is the username) is stored in the USR variable.
 
+
+#----------------------------
+# VÉRIFICATIONS
+#----------------------------
+
+# Vérifie que l'utilisateur à l'intérieur du conteneur n'est pas root
+# Si l'utilisateur n'est pas root, le script continue, sinon le message "User cannot be root!" s'affiche
 if [[ $USR == "root" ]]; then
 echo "User cannot be root!"
 fi
-# Checking if the user inside the container is root.
-# If it is, an error message is printed.
 
+
+#---------------------------------------------
+# CRÉATION D'UN CONTAINER EN LECTURE SEULE
+#---------------------------------------------
+
+# Exécute un container avec un système de fichiers temporaire, en lecture seule et avec une image identique au précédent, puis le supprime
 docker container run --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
-# Running a Docker container in detached mode from the image built above.
-# The container is removed after its execution (--rm option).
-# A temporary filesystem is mounted at /tmp inside the container (--tmpfs option).
-# The filesystem of the container is mounted as read-only (--read-only option).
-# The output of this command is redirected to /dev/null to suppress it.
 
 ID=$(docker container ls -laq)
-# Getting the ID of the last created container.
 
+# Stocke dans la variable RUNNING le statut de la machine pour les vérifications qui suivront
 RUNNING=$(docker container inspect -f '{{.State.Status}}' $ID)
-# Checking the status of the container with the ID obtained above.
-# The status is extracted from the output of 'docker container inspect' command using a format string.
 
+
+#----------------------------
+# VÉRIFICATIONS
+#----------------------------
+
+# Vérifie si le container fonctionne correctement en lecture seule
+# S'il est en marche, il est supprimé, sinon le message "Container cannot run in read-only mode!" s'affiche
 if [[ $RUNNING == "running" ]]; then
     docker kill $ID > /dev/null
 else
 echo "Container cannot run in read-only mode!"
 fi
-# Checking if the container is running.
-# If it is, the container is killed.
-# If it's not, an error message is printed.
 
+
+#----------------------------
+# SUPPRESSION DE L'IMAGE
+#----------------------------
+
+# L'image créée au début est supprimée après les vérifications
 docker rmi $IMG > /dev/null
-# Removing the Docker image built above.
-# The output of this command is redirected to /dev/null to suppress it.
+
+
+#----------------------------
+# RÉSUMÉ
+#----------------------------
+
+# D'après moi, ce script permet d'automatiser la vérification d'une image docker en s'assurant qu'elle fonctionne, puis en vérifiant qu'il n'y a pas de souci de sécurité (notamment avec la vérification de l'utilisateur) en créant des containers temporaires.
