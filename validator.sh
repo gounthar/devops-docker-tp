@@ -1,5 +1,6 @@
 #!/bin/bash
 # This is a bash script for validating Docker images and containers.
+# Ce fichier vérifie si le conteneur est bien en lecture seule et que l'utilisateur n'est pas root 
 
 set -euo pipefail
 # The 'set' command is used to change the values of shell options and set the positional parameters.
