@@ -6,6 +6,8 @@ set -euo pipefail
 # '-e' option will cause the shell to exit if any invoked command fails.
 # '-u' option treats unset variables and parameters as an error.
 # '-o pipefail' option sets the exit code of a pipeline to that of the rightmost command to exit with a non-zero status.
+# Permets d'activer une sécurité sur le code afin de sortir du script en cas d'erreur
+
 
 IMG=$(echo img$$)
 # Creating a unique image name using the process ID of the current shell.
@@ -26,6 +28,7 @@ echo "User cannot be root!"
 fi
 # Checking if the user inside the container is root.
 # If it is, an error message is printed.
+# Verifie que l'utilisateur qui lance le script n'est pas root et mets un message d'erreur si c'est le cas.
 
 docker container run --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
 # Running a Docker container in detached mode from the image built above.
@@ -33,6 +36,7 @@ docker container run --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
 # A temporary filesystem is mounted at /tmp inside the container (--tmpfs option).
 # The filesystem of the container is mounted as read-only (--read-only option).
 # The output of this command is redirected to /dev/null to suppress it.
+# Lance un docker temporaire en lecture seule
 
 ID=$(docker container ls -laq)
 # Getting the ID of the last created container.
@@ -49,7 +53,9 @@ fi
 # Checking if the container is running.
 # If it is, the container is killed.
 # If it's not, an error message is printed.
+# Si le docker est déjà lancé, le script l'arrete.
 
 docker rmi $IMG > /dev/null
 # Removing the Docker image built above.
 # The output of this command is redirected to /dev/null to suppress it.
+# Supprime l'image
