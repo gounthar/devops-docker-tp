@@ -9,7 +9,7 @@ set -euo pipefail
 
 
 #----------------------------
-# CREATION DE L'IMAGE
+# CRÉATION DE L'IMAGE
 #----------------------------
 
 # Crée un numéro unique à partir du processus en train de tourner
@@ -20,7 +20,7 @@ docker image build --tag $IMG ./src --load
 
 
 #----------------------------
-# CREATION DU CONTAINER
+# CRÉATION DU CONTAINER
 #----------------------------
 
 # Créé un container depuis l'image docker générée,
@@ -28,7 +28,7 @@ USR=$(docker container run --rm --entrypoint=whoami $IMG )
 
 
 #----------------------------
-# VERIFICATIONS
+# VÉRIFICATIONS
 #----------------------------
 
 # Vérifie que l'utilisateur à l'intérieur du conteneur n'est pas root
@@ -39,7 +39,7 @@ fi
 
 
 #---------------------------------------------
-# CREATION D'UN CONTAINER EN LECTURE SEULE
+# CRÉATION D'UN CONTAINER EN LECTURE SEULE
 #---------------------------------------------
 
 # Exécute un container avec un système de fichiers temporaire, en lecture seule et avec une image identique au précédent, puis le supprime
@@ -52,7 +52,7 @@ RUNNING=$(docker container inspect -f '{{.State.Status}}' $ID)
 
 
 #----------------------------
-# VERIFICATIONS
+# VÉRIFICATIONS
 #----------------------------
 
 # Vérifie si le container fonctionne correctement en lecture seule
@@ -73,7 +73,7 @@ docker rmi $IMG > /dev/null
 
 
 #----------------------------
-# RESUME
+# RÉSUMÉ
 #----------------------------
 
 # D'après moi, ce script permet d'automatiser la vérification d'une image docker en s'assurant qu'elle fonctionne, puis en vérifiant qu'il n'y a pas de souci de sécurité (notamment avec la vérification de l'utilisateur) en créant des containers temporaires.
