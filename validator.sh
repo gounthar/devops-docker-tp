@@ -1,5 +1,6 @@
 #!/bin/bash
 # This is a bash script for validating Docker images and containers.
+# Ce fichier vérifie si le conteneur est bien en lecture seule et que l'utilisateur n'est pas root 
 
 set -euo pipefail
 # The 'set' command is used to change the values of shell options and set the positional parameters.
@@ -7,21 +8,21 @@ set -euo pipefail
 # '-u' option treats unset variables and parameters as an error.
 # '-o pipefail' option sets the exit code of a pipeline to that of the rightmost command to exit with a non-zero status.
 
-IMG=$(echo img$$)
+IMG=$(echo img$$) #crée une image unique à partir de l'identifiant du processus du shell 
 # Creating a unique image name using the process ID of the current shell.
 
-docker image build --tag $IMG ./src # --load
+docker image build --tag $IMG ./src # --load  #creation et identification d'une image docker 
 # Building a Docker image from the Dockerfile located in the ./src directory.
 # The built image is tagged with the unique name generated above.
 # The '--load' option ensures the built image is loaded into the Docker daemon only if you use docker buildx.
 
-USR=$(docker container run --rm --entrypoint=whoami $IMG )
+USR=$(docker container run --rm --entrypoint=whoami $IMG ) #on insére dans la variable USR la valeur du user contenu dans l'image
 # Running a Docker container from the image built above.
 # The container is removed after its execution (--rm option).
 # The entrypoint of the container is overridden to execute the 'whoami' command.
 # The output of 'whoami' (which is the username) is stored in the USR variable.
 
-if [[ $USR == "root" ]]; then
+if [[ $USR == "root" ]]; then  #si le user contenu dans l'image s'avére être root alors on interompt le processus et on affiche un message d'erreur
 echo "User cannot be root!"
 fi
 # Checking if the user inside the container is root.
