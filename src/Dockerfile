@@ -9,18 +9,22 @@ FROM donch/net-tools
 # Copy the start.sh script from the local file system into the /bin directory of the image.
 # This script will be run when a container is started from this image.
 
+RUN addgroup -S usergroup && adduser -S abdessalem -G usergroup
+
+# Copie le script start.sh dans le conteneur et lui donne les permissions d'exécution
 COPY start.sh /bin/start.sh
 
-RUN addgroup -S usergroup $$ adduser -S toto -G usergroup
+RUN chmod +x /bin/start.sh
+
 
 # Expose port 4321 in the container.
 # This makes the port accessible to processes outside of the container.
 
 EXPOSE 4321
 
-USER toto
+USER abdessalem
 
-RUN chown toto:usergroup /bin/start.sh && chmod +x /bin/start.sh
+
 
 # Set /bin/start.sh as the entrypoint of the image.
 # The entrypoint is the command that is run when a container is started from this image.
