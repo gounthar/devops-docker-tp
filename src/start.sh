@@ -14,14 +14,14 @@ mkdir -p "$TMP_DIRECTORY"
 TIMESTAMP="$TMP_DIRECTORY/started.time"
 # create another variable to add the file name.
 
-touch "$TIMESTAMP_FILE"
+touch "$TIMESTAMP"
 # Create the timestamp file.
 
 if [ $? -ne 0 ]; then
     exit 1
 fi
 
-date > "$TIMESTAMP_FILE"
+date > "$TIMESTAMP"
 # Write the current date and time to the timestamp file.
 
 exec "$@"
