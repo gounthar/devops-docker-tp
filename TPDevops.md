@@ -1,3 +1,5 @@
+Applincourt Alexis 3 INFO
+
 Apres lecture des fichiers du TP, j'ai pu constater directement le blocage avec le root acces
 
 Apres la jonction entre le TP et Gitpod, j'ai exectué le fichier validator.sh qui se lance correctement mais ne peut aller jusqu'au bout car pb de root acces
