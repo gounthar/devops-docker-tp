@@ -4,6 +4,9 @@
 # This image likely contains network utilities like netstat, ifconfig, etc.
 FROM donch/net-tools
 
+# On crée un nouvel utilisateur "nouveluser" que l'on vient mettre dans un nouveau groupe système nommé nouveaugroupe
+RUN addgroup -S nouveaugroupe && adduser -S nouveluser -G nouveaugroupe
+
 # Copy the start.sh script from the local file system into the /bin directory of the image.
 # This script will be run when a container is started from this image.
 COPY start.sh /bin/start.sh
@@ -12,7 +15,9 @@ COPY start.sh /bin/start.sh
 # This makes the port accessible to processes outside of the container.
 EXPOSE 4321
 
-USER root
+# On définie l'utilisateur avec lequel va s'exécuter notre container (c'est l'utilisateur que l'on à créé juste avant l.8)
+# On s'assure donc que le container sera exécuté avec un utilisateur qui n'es pas root
+USER nouveluser
 
 # Set /bin/start.sh as the entrypoint of the image.
 # The entrypoint is the command that is run when a container is started from this image.
