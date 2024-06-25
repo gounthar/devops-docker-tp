@@ -2,54 +2,47 @@
 # This is a bash script for validating Docker images and containers.
 
 set -euo pipefail
-# The 'set' command is used to change the values of shell options and set the positional parameters.
-# '-e' option will cause the shell to exit if any invoked command fails.
-# '-u' option treats unset variables and parameters as an error.
-# '-o pipefail' option sets the exit code of a pipeline to that of the rightmost command to exit with a non-zero status.
+#La commande set modifie les options du shell :
+#-e : le script s'arrête si une commande échoue.
+#-u : le script s'arrête si une variable non définie est utilisée.
+#-o pipefail : le code de sortie d'un pipeline est celui de la dernière commande ayant échoué (ou 0 si aucune commande n'a échoué).
 
 IMG=$(echo img$$)
-# Creating a unique image name using the process ID of the current shell.
 
+# Cette ligne génère un nom d'image unique en insérant  $img avec le PID du shell.
 docker image build --tag $IMG ./src # --load
-# Building a Docker image from the Dockerfile located in the ./src directory.
-# The built image is tagged with the unique name generated above.
-# The '--load' option ensures the built image is loaded into the Docker daemon only if you use docker buildx.
+
+#Cette commande construit une image Docker à partir du DockerfileL'image est taguée avec le nom unique généré précédemment
 
 USR=$(docker container run --rm --entrypoint=whoami $IMG )
-# Running a Docker container from the image built above.
-# The container is removed after its execution (--rm option).
-# The entrypoint of the container is overridden to execute the 'whoami' command.
-# The output of 'whoami' (which is the username) is stored in the USR variable.
+# Cette commande exécute un conteneur à partir de l'image construite, avec l'entrypoint. 
+#Le conteneur est supprimé après exécution grâce à l'option --rm.
 
 if [[ $USR == "root" ]]; then
 echo "User cannot be root!"
 fi
-# Checking if the user inside the container is root.
-# If it is, an error message is printed.
 
-docker container run --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
-# Running a Docker container in detached mode from the image built above.
-# The container is removed after its execution (--rm option).
-# A temporary filesystem is mounted at /tmp inside the container (--tmpfs option).
-# The filesystem of the container is mounted as read-only (--read-only option).
-# The output of this command is redirected to /dev/null to suppress it.
+#Si l'utilisateur dans le conteneur est root, le message d'erreur "User cannot be root!" s'affiche
+docker container run -d --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
+# Cette commande lance un conteneur en mode détaché 
+#-d pour  exécuter le conteneur en arrière-plan.
+#--rm pour supprimmer le conteneur après qu'il soit a l'arrêt 
+#--tmpfs /tmp permet de monter un système de fichiers temporaire à /tmp
+#--read-only : monte le système de fichiers du conteneur en lecture seule.
+#La sortie de la commande est redirigée vers /dev/null pour la supprimer.
 
 ID=$(docker container ls -laq)
-# Getting the ID of the last created container.
+# La commande récupère l'ID du dernier conteneur créé
 
 RUNNING=$(docker container inspect -f '{{.State.Status}}' $ID)
-# Checking the status of the container with the ID obtained above.
-# The status is extracted from the output of 'docker container inspect' command using a format string.
+# Cette commande inspecte le conteneur pour obtenir son état
 
 if [[ $RUNNING == "running" ]]; then
     docker kill $ID > /dev/null
 else
 echo "Container cannot run in read-only mode!"
 fi
-# Checking if the container is running.
-# If it is, the container is killed.
-# If it's not, an error message is printed.
+# Si le conteneur est en cours d'exécution il est tué. Sinon, le message d'erreur "Container cannot run in read-only mode!" est affiché..
 
 docker rmi $IMG > /dev/null
-# Removing the Docker image built above.
-# The output of this command is redirected to /dev/null to suppress it.
+# Cette commande supprime l'image Docker créée précédemment. La sortie de la commande est redirigée vers /dev/null.
