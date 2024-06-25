@@ -1,7 +1,7 @@
 #!/bin/sh
 # This script is used to create a timestamp file and write the current date and time into it.
 
-set -euo
+set -eux
 # Setting shell options for better error handling and debugging.
 # 'e' option will cause the shell to exit if any invoked command fails.
 # 'u' option treats unset variables and parameters as an error.
