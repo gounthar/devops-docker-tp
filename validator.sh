@@ -1,55 +1,74 @@
 #!/bin/bash
-# This is a bash script for validating Docker images and containers.
+# Ce script en bash valide les images et les containers Docker.
 
 set -euo pipefail
-# The 'set' command is used to change the values of shell options and set the positional parameters.
-# '-e' option will cause the shell to exit if any invoked command fails.
-# '-u' option treats unset variables and parameters as an error.
-# '-o pipefail' option sets the exit code of a pipeline to that of the rightmost command to exit with a non-zero status.
+# Options du shell :
+# - 'e' : quitte le shell si une commande échoue.
+# - 'u' : traite les variables non définies comme des erreurs.
+# - 'o pipefail' : retourne le code de sortie d'une pipeline comme celui de la dernière commande à avoir échoué.
 
+
+# CRÉATION DE L'IMAGE :
+
+# Crée un nom d'image unique en utilisant l'ID du processus en cours
 IMG=$(echo img$$)
-# Creating a unique image name using the process ID of the current shell.
 
-docker image build --tag $IMG ./src # --load
-# Building a Docker image from the Dockerfile located in the ./src directory.
-# The built image is tagged with the unique name generated above.
-# The '--load' option ensures the built image is loaded into the Docker daemon only if you use docker buildx.
+# Construit une image Docker à partir du Dockerfile dans le répertoire src, en lui associant le nom généré
+docker image build --tag $IMG ./src --load
 
+
+# CRÉATION DU CONTAINER :
+
+# Exécute un container à partir de l'image Docker créée ci-dessus, en remplaçant l'entrée par la commande 'whoami'
 USR=$(docker container run --rm --entrypoint=whoami $IMG )
-# Running a Docker container from the image built above.
-# The container is removed after its execution (--rm option).
-# The entrypoint of the container is overridden to execute the 'whoami' command.
-# The output of 'whoami' (which is the username) is stored in the USR variable.
 
+
+# VÉRIFICATION DE L'UTILISATEUR :
+
+# Vérifie que l'utilisateur dans le conteneur n'est pas 'root'
+# Si c'est le cas, affiche un message d'erreur
 if [[ $USR == "root" ]]; then
-echo "User cannot be root!"
+    echo "User cannot be root!"
 fi
-# Checking if the user inside the container is root.
-# If it is, an error message is printed.
 
+
+# CRÉATION D'UN CONTAINER EN MODE LECTURE SEULE :
+
+# Exécute un container en mode détaché avec un système de fichiers temporaire en /tmp et en lecture seule, basé sur l'image précédente, puis le supprime
 docker container run --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
-# Running a Docker container in detached mode from the image built above.
-# The container is removed after its execution (--rm option).
-# A temporary filesystem is mounted at /tmp inside the container (--tmpfs option).
-# The filesystem of the container is mounted as read-only (--read-only option).
-# The output of this command is redirected to /dev/null to suppress it.
 
+# Obtient l'ID du dernier container créé
 ID=$(docker container ls -laq)
-# Getting the ID of the last created container.
 
+# Vérifie l'état d'exécution du container avec l'ID obtenu ci-dessus
 RUNNING=$(docker container inspect -f '{{.State.Status}}' $ID)
-# Checking the status of the container with the ID obtained above.
-# The status is extracted from the output of 'docker container inspect' command using a format string.
 
+
+# VÉRIFICATION DE L'ÉTAT DU CONTAINER :
+
+# Vérifie si le container fonctionne en mode lecture seule
+# S'il est en cours d'exécution, il est tué, sinon affiche un message d'erreur
 if [[ $RUNNING == "running" ]]; then
     docker kill $ID > /dev/null
 else
-echo "Container cannot run in read-only mode!"
+    echo "Container cannot run in read-only mode!"
 fi
-# Checking if the container is running.
-# If it is, the container is killed.
-# If it's not, an error message is printed.
 
+
+# SUPPRESSION DE L'IMAGE :
+
+# Supprime l'image Docker créée au début
 docker rmi $IMG > /dev/null
-# Removing the Docker image built above.
-# The output of this command is redirected to /dev/null to suppress it.
+
+
+# Conclusion :
+
+# Ce script automatise la validation d'une image Docker en vérifiant plusieurs aspects cruciaux pour garantir la sécurité et le bon fonctionnement des containers :
+# 1. Création de l'image : Il génère un nom unique pour l'image Docker et construit cette image à partir d'un Dockerfile situé dans le répertoire 'src'.
+# 2. Création du container : Il exécute un container à partir de l'image créée pour vérifier l'utilisateur avec la commande 'whoami', garantissant que l'utilisateur n'est pas root.
+# 3. Vérification de l'utilisateur : Si l'utilisateur est root, il affiche un message d'erreur et continue.
+# 4. Création d'un container en mode lecture seule : Il lance un container en mode détaché avec un système de fichiers temporaire monté en lecture seule pour vérifier que le container peut fonctionner correctement dans ce mode.
+# 5. Vérification de l'état du container : Il vérifie si le container fonctionne en mode lecture seule. Si le container fonctionne, il le tue. Sinon, il affiche un message d'erreur.
+# 6. Suppression de l'image : Enfin, il supprime l'image Docker créée au début pour libérer des ressources.
+
+# En résumé, ce script permet de s'assurer que les images Docker créées ne fonctionnent pas avec des privilèges root et qu'elles peuvent fonctionner en mode lecture seule. Cela contribue à renforcer la sécurité et à détecter d'éventuels problèmes de permissions dans les containers Docker.
