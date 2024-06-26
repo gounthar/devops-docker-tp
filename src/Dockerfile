@@ -12,7 +12,11 @@ COPY start.sh /bin/start.sh
 # This makes the port accessible to processes outside of the container.
 EXPOSE 4321
 
-USER root
+# Create a user in order to execute the script with
+# This makes the script executable for Docker
+RUN adduser -S www
+
+USER www
 
 # Set /bin/start.sh as the entrypoint of the image.
 # The entrypoint is the command that is run when a container is started from this image.
