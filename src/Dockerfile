@@ -8,11 +8,19 @@ FROM donch/net-tools
 # This script will be run when a container is started from this image.
 COPY start.sh /bin/start.sh
 
+# ajout des droits d'éxécution 
+RUN chmod +x /bin/start.sh
+
 # Expose port 4321 in the container.
 # This makes the port accessible to processes outside of the container.
 EXPOSE 4321
 
-USER root
+# ajout de l'utilisateur "utilisateur"
+RUN adduser -S -D -h /bin/bash utilisateur
+
+USER utilisateur
+
+WORKDIR /home/utilisateur
 
 # Set /bin/start.sh as the entrypoint of the image.
 # The entrypoint is the command that is run when a container is started from this image.
