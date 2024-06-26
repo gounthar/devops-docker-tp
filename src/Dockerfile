@@ -4,6 +4,9 @@
 # This image likely contains network utilities like netstat, ifconfig, etc.
 FROM donch/net-tools
 
+# Create the /home/www directory
+RUN mkdir -p /home/www
+
 # Copy the start.sh script from the local file system into the /bin directory of the image.
 # This script will be run when a container is started from this image.
 COPY start.sh /bin/start.sh
