@@ -1,14 +1,14 @@
 #!/bin/sh
 set -eu
 
-# Crée un répertoire temporaire pour stocker le fichier started.time
+# Create a temporary directory to store the started.time file
 temp_dir=$(mktemp -d)
 
-# Crée un fichier nommé started.time dans le répertoire temporaire
+# Create a file named started.time in the temporary directory
 touch "$temp_dir/started.time"
 
-# Écrit la date et l'heure actuelles dans le fichier started.time
+# Write the current date and time into the started.time file
 date > "$temp_dir/started.time"
 
-# Passe le contrôle à la commande suivante
+# Pass control to the next command
 exec "$@"

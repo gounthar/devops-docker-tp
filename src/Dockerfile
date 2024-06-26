@@ -11,6 +11,9 @@ RUN mkdir -p /home/www && chown -R nobody:nogroup /home/www
 # This script will be run when a container is started from this image.
 COPY start.sh /bin/start.sh
 
+# Make the start.sh script executable
+RUN chmod +x /bin/start.sh
+
 # Expose port 4321 in the container.
 # This makes the port accessible to processes outside of the container.
 EXPOSE 4321
