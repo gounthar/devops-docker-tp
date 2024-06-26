@@ -22,10 +22,11 @@ USR=$(docker container run --rm --entrypoint=whoami $IMG )
 # The output of 'whoami' (which is the username) is stored in the USR variable.
 
 if [[ $USR == "root" ]]; then
-echo "User cannot be root!"
+    echo "User cannot be root!"
+    exit 1
 fi
 # Checking if the user inside the container is root.
-# If it is, an error message is printed.
+# If it is, an error message is printed and the script exits.
 
 docker container run --rm --detach --tmpfs /tmp --read-only $IMG > /dev/null
 # Running a Docker container in detached mode from the image built above.
@@ -44,11 +45,12 @@ RUNNING=$(docker container inspect -f '{{.State.Status}}' $ID)
 if [[ $RUNNING == "running" ]]; then
     docker kill $ID > /dev/null
 else
-echo "Container cannot run in read-only mode!"
+    echo "Container cannot run in read-only mode!"
+    exit 1
 fi
 # Checking if the container is running.
 # If it is, the container is killed.
-# If it's not, an error message is printed.
+# If it's not, an error message is printed and the script exits.
 
 docker rmi $IMG > /dev/null
 # Removing the Docker image built above.
