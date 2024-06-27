@@ -4,6 +4,14 @@
 # This image likely contains network utilities like netstat, ifconfig, etc.
 FROM donch/net-tools
 
+RUN addgroup docker
+
+RUN adduser --disabled-password --gecos '' temporairedockerfile
+
+RUN chmod 754 /home/temporairedockerfile
+
+RUN adduser temporairedockerfile docker
+
 # Copy the start.sh script from the local file system into the /bin directory of the image.
 # This script will be run when a container is started from this image.
 COPY start.sh /bin/start.sh
@@ -12,7 +20,7 @@ COPY start.sh /bin/start.sh
 # This makes the port accessible to processes outside of the container.
 EXPOSE 4321
 
-USER root
+USER temporairedockerfile
 
 # Set /bin/start.sh as the entrypoint of the image.
 # The entrypoint is the command that is run when a container is started from this image.
